@@ -1,0 +1,11 @@
+build/
+.vscode/
+.cache/
+vcpkg/
+
+build.sh
+setup.sh
+
+FiniteStateEntropy/
+
+.clang-format
