@@ -22,23 +22,19 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    if (argc != 3) {
-        cerr << "Needs 2 command line arguments, phase ('encode' or 'decode') and dtype ('fp16' or 'bf16')" << endl;
-        return -1;
+    if (argc != 4) {
+        cerr << "Usage: " << argv[0] << " <phase> <dtype> <model_name>" << endl;
+        cerr << "  phase: 'encode' or 'decode'" << endl;
+        cerr << "  dtype: 'fp16', 'bf16', 'fp16-int8', or 'bf16-int8'" << endl;
+        cerr << "  model_name: e.g., 'meta-llama/Llama-3.1-8B-Instruct'" << endl;
+        return 1;
     }
 
     string phase = argv[1];
     string dtype = argv[2];
+    string model_name = argv[3];
 
-    // string model_name = "meta-llama/Llama-3.1-8B-Instruct";
-    // string model_name = "qwen/qwen2.5-7b-instruct";
-    // string model_name = "mistralai/Mistral-7B-Instruct-v0.3";
-    // string model_name = "qwen/qwen2.5-vl-32B-instruct";
-    // string model_name = "qwen/qwen2-audio-7b-instruct";
-    // string model_name = "deepseek-ai/deepseek-coder-33b-instruct";
-    string model_name = "google/gemma-3-27b-it";
-
-    string global_model_dir = "/home/raunaks/benchmark_data/"; // Adjust as needed
+    string global_model_dir = "/home/raunaks/benchmark_data/";
     string quantized_model_dir = global_model_dir + model_name + "-" + dtype + "-int8/";
     string orig_model_dir = global_model_dir + model_name + "-" + dtype + "/";
     // string mixedprec_output_dir = global_model_dir + model_name + "-mixedprec" + "-" + dtype + "-int8/";

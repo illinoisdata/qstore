@@ -2,6 +2,7 @@ build/
 .vscode/
 .cache/
 vcpkg/
+*.log
 
 build.sh
 setup.sh

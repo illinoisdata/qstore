@@ -54,7 +54,8 @@ void save_tensor_names(vector<string> tensor_names, string output_dir) {
 
     if (!metadata_file.is_open()) {
         cerr << "Error: Failed to open file for writing tensor names: " << metadata_path << endl;
-        exit(0);    }
+        exit(1);
+    }
 
     for (const auto& name : tensor_names) {
         metadata_file << name << endl;
@@ -67,7 +68,7 @@ void load_tensor_names(string tensor_names_path, vector<string>& tensor_names) {
 	ifstream tensor_names_file(tensor_names_path);
     if (!tensor_names_file.is_open()) {
         cerr << "Error: Could not open tensor names file: " << tensor_names_path << endl;
-        exit(0);
+        exit(1);
     }
 
     string name;
@@ -80,6 +81,6 @@ void load_tensor_names(string tensor_names_path, vector<string>& tensor_names) {
 
     if (tensor_names.empty()) {
         cerr << "Error: No tensor names found in file. Exiting." << endl;
-        exit(0);
+        exit(1);
     }
 }

@@ -46,6 +46,20 @@ def load_huggingface_model(model_path, tensor_names=None):
 
     return state_dict
 
+def determine_dtype(model_name):
+    """Determine the appropriate dtype based on model name."""
+    # Models that use bf16
+    bf16_models = [
+        "qwen/qwen2-audio-7b-instruct",
+        "deepseek-ai/deepseek-coder-33b-instruct", 
+        "google/gemma-3-27b-it"
+    ]
+    
+    # Extract base model name (remove dtype suffixes if present)
+    base_name = model_name.split('-fp16')[0].split('-bf16')[0].split('-int8')[0]
+    
+    return "bf16" if base_name in bf16_models else "fp16"
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -57,21 +71,49 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_name",
         type=str,
-        help="path of the model directory",
+        help="base model name (e.g., meta-llama/Llama-3.1-8B-Instruct)",
         required=True
+    )
+    parser.add_argument(
+        "--dtype",
+        type=str,
+        help="data type: fp16 or bf16 (auto-detected if not specified)",
+        default=None
+    )
+    parser.add_argument(
+        "--int8",
+        action="store_true",
+        help="use int8 quantized model"
     )
     args = parser.parse_args()
 
     torch.set_num_threads(48)
-    model_path = os.path.join("/home/raunaks/benchmark_data/", args.model_name)
+    
+    # Simple dtype handling
+    if args.dtype is None:
+        args.dtype = determine_dtype(args.model_name)
+    
+    # Model directory name includes dtype and optionally int8
+    if args.int8:
+        model_dir_name = f"{args.model_name}-{args.dtype}-int8"
+    else:
+        model_dir_name = f"{args.model_name}-{args.dtype}"
+    base_model_name = args.model_name
+    
+    # Expand home directory and construct paths
+    base_data_dir = os.path.expanduser("~/benchmark_data/")
+    model_path = os.path.join(base_data_dir, model_dir_name)
+    
+    print(f"Base model name: {base_model_name}")
+    print(f"Model directory: {model_dir_name}")
+    print(f"Data type: {args.dtype}")
+    print(f"Model path: {model_path}")
 
     if args.coding_type == "encode":
-        # tensor_names_file = "/home/raunaks/benchmark_data/meta-llama/Llama-3.1-8B-Instruct-mixedprec-fp16-int8/tensor_index.tsv"
-        # tensor_names_file = "/home/raunaks/benchmark_data/qwen/qwen2.5-7b-instruct-mixedprec-fp16-int8/tensor_index.tsv"
-        # tensor_names_file = "/home/raunaks/benchmark_data/mistralai/Mistral-7B-Instruct-v0.3-mixedprec-fp16-int8/tensor_index.tsv"
-        # tensor_names_file = "/home/raunaks/benchmark_data/qwen/qwen2-audio-7b-instruct-mixedprec-bf16-int8/tensor_index.tsv"
-        # tensor_names_file = "/home/raunaks/benchmark_data/deepseek-ai/deepseek-coder-33b-instruct-mixedprec-bf16-int8/tensor_index.tsv"
-        tensor_names_file = "/home/raunaks/benchmark_data/google/gemma-3-27b-it-mixedprec-bf16-int8/tensor_index.tsv"
+        # Automatically determine tensor_names_file path based on base model and dtype
+        mixedprec_dir_name = f"{base_model_name}-mixedprec-{args.dtype}-int8"
+        tensor_names_file = os.path.join(base_data_dir, mixedprec_dir_name, "tensor_index.tsv")
+        print(f"Tensor names file: {tensor_names_file}")
 
         desired_keys = []
         with open(tensor_names_file, "r") as f:
@@ -106,7 +148,8 @@ if __name__ == "__main__":
 
     elif args.coding_type == "decode":
         start = time.perf_counter()
-        with open(model_path + "baseline3.safetensors", "rb") as f:
+        safetensors_path = os.path.join(model_path, "baseline3.safetensors")
+        with open(safetensors_path, "rb") as f:
             all_bytes = f.read()
         state_dict = load(all_bytes)
         end = time.perf_counter()

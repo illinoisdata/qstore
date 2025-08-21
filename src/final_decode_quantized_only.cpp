@@ -29,15 +29,19 @@ struct TensorLocationInfo {
 
 int main(int argc, char **argv) {
     string dtype = "bf16";
-    // string model_name = "meta-llama/Llama-3.1-8B-Instruct";
-    // string model_name = "qwen/qwen2.5-7b-instruct";
-    // string model_name = "mistralai/Mistral-7B-Instruct-v0.3";
-    // string model_name = "qwen/qwen2.5-vl-32B-instruct";
-    // string model_name = "qwen/qwen2-audio-7b-instruct";
-    // string model_name = "deepseek-ai/deepseek-coder-33b-instruct";
-    string model_name = "google/gemma-3-27b-it";
+    string model_name;
+    
+    // Check command line arguments
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <model_name>" << endl;
+        cerr << "Example: " << argv[0] << " google/gemma-3-27b-it" << endl;
+        return 1;
+    }
+    
+    model_name = argv[1];
+    cout << "Loading quantized model: " << model_name << endl;
 
-    string global_model_dir = "/home/raunaks/benchmark_data/";
+    string global_model_dir = "~/benchmark_data/";
     string quantized_model_dir = global_model_dir + model_name + "-" + dtype + "-int8/";
     string orig_model_dir = global_model_dir + model_name + "-" + dtype + "/"; // Needed for verification data
 

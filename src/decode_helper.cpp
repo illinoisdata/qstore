@@ -43,10 +43,7 @@ CompressedDataBuffer read_segment_to_buffer(
     CompressedDataBuffer data;
     data.tensor_name = name;
 
-    // if (!inFile.is_open() || !inFile) {
-    //     data.error_msg = "Input file stream is not open or in a bad state for tensor " + name;
-    //     return data;
-    // }
+
 
     // Check if size is zero (valid case for empty tensors)
     if (size == 0) {
@@ -56,12 +53,7 @@ CompressedDataBuffer read_segment_to_buffer(
 
     // Seek to the specified offset
     inFile.seekg(offset, ios::beg);
-    // if (!inFile) {
-    //     // Clear error flags before setting message
-    //     inFile.clear();
-    //     data.error_msg = "Failed to seek to offset " + to_string(offset) + " for tensor " + name;
-    //     return data;
-    // }
+
 
     // Resize buffer and read the segment
     try {
@@ -72,15 +64,7 @@ CompressedDataBuffer read_segment_to_buffer(
     }
 
     inFile.read(reinterpret_cast<char*>(data.buffer.data()), size);
-    // if (!inFile) {
-    //     // Clear error flags before setting message
-    //     inFile.clear();
-    //     // Check how many bytes were actually read
-    //     streamsize bytes_read = inFile.gcount();
-    //     data.error_msg = "Failed to read " + to_string(size) + " bytes (read " + to_string(bytes_read) + ") from offset " + to_string(offset) + " for tensor " + name;
-    //     data.buffer.clear(); // Clear potentially partial read
-    //     return data;
-    // }
+
 
     data.success = true;
     return data;
@@ -90,13 +74,6 @@ vector<uint8_t> decompress_quantized_tensor_chunked(
     const vector<uint8_t>& compressed_buffer_vec, // Input buffer (contains ONE tensor segment)
     const string& tensor_name // For error messages
 ) {
-    if (compressed_buffer_vec.empty()) {
-        // Check header consistency even for empty buffer?
-        // The serialization writes a header even for empty tensors.
-        // Let's assume the read_segment logic handles truly empty segments correctly.
-        // If the segment isn't empty but represents an empty tensor, the header read will handle it.
-        // return {}; // Empty input -> empty output (Potentially incorrect if header exists)
-    }
 
     const char* buffer_ptr = reinterpret_cast<const char*>(compressed_buffer_vec.data());
     size_t buffer_size = compressed_buffer_vec.size();

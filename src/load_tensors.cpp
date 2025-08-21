@@ -76,7 +76,7 @@ MixedPrecMetadata load_tensors_and_metadata(string orig_model_dir, string quanti
     const auto &wt_map_json = j.value("weight_map", json::object());
     const auto &q_wt_map_json = q_j.value("weight_map", json::object());
 
-    // cout << "Building file maps and identifying tensors..." << endl;
+
     set<string> unique_q_files, unique_orig_files, unique_scale_files;
     for (const auto &[t_name, f_name_json] : q_wt_map_json.items()) { 
         if (!f_name_json.is_string()) 
